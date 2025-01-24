@@ -1,0 +1,47 @@
+.ul-list-todos {
+	display: flex;
+	flex-direction: column;
+	gap: 35px;
+	list-style-type: none;
+	margin: 0 0 50px 0;
+	padding: 0;
+}
+
+.todo-container {
+	display: flex;
+	align-items: center;
+	gap: 15px;
+}
+
+.link-title-todo {
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-decoration: none;
+	font-size: 22px;
+	color: black;
+}
+
+.container-checkbox {
+	margin-top: 3px;
+	width: 20px;
+	height: 20px;
+}
+
+.toggle-todo {
+	accent-color: rgba(154,112,200,1);
+	width: 20px;
+	height: 20px;
+	cursor: pointer;
+	margin: 0;
+}
+
+.loader.loader-check-box {
+	width: 20px;
+	height: 20px;
+}
+.loader.loader-check-box::after {
+	width: 18px;
+	height: 18px;
+}

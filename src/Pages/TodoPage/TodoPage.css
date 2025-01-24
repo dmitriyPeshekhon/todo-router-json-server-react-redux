@@ -1,0 +1,28 @@
+.container-todo-page {
+	height: 100%;
+}
+
+.container-back-delete-btn {
+	height: 40px;
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 30px;
+}
+
+.img-container-btn {
+	cursor: pointer;
+	width: 40px;
+	height: 40px;
+	border-radius: 5px;
+}
+
+.img-container-btn:active {
+	background: rgb(200, 200, 200, .2);
+}
+
+.img-btn {
+	width: 30px;
+	height: 30px;
+	margin: 5px;
+}
