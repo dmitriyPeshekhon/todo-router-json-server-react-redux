@@ -2,16 +2,28 @@ import './ListTodos.css';
 import { useState } from 'react';
 import { Checkbox } from './Checkbox';
 import { Link } from 'react-router-dom';
-import { useTodos } from '../../hooks/useTodos';
+import { requestEditTodo } from '../../hooks';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { editTodo } from '../../redux/actions';
 
 export const Todo = ({ todo }) => {
 	const [isUpdating, setIsUpdating] = useState(false);
-	const { handleEditTodo } = useTodos();
+
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
 
 	const handleChangeCheckbox = async () => {
 		setIsUpdating(true);
-		await handleEditTodo({ ...todo, completed: !todo.completed });
-		setIsUpdating(false);
+		const editedTodo = { ...todo, completed: !todo.completed };
+		const statusEdit = await requestEditTodo(editedTodo);
+		if (statusEdit) {
+			dispatch(editTodo(editedTodo));
+			setIsUpdating(false);
+		} else {
+			setIsUpdating(false);
+			navigate('/action-failed-page', { replace: true });
+		}
 	};
 
 	return (

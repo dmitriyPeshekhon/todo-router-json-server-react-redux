@@ -1,15 +1,16 @@
 import './FormAddTodo.css';
 import { useState } from 'react';
-import { useTodos } from '../../hooks';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { changeIsLoadingAddTodo, modalClose, addTodo } from '../../redux/actions';
+import { requestAddTodo } from '../../hooks';
 
-export const FormAddTodo = ({
-	setIsModalOpen,
-	isLoadingAddTodo,
-	setIsLoadingAddTodo,
-}) => {
+export const FormAddTodo = () => {
 	const [textArea, setTextArea] = useState('');
+	const isLoadingAddTodo = useSelector((store) => store.loaders.isLoadingAddTodo);
 
-	const { handleAddTodo } = useTodos();
+	const dispatch = useDispatch();
+	const navigate = useNavigate();
 
 	const handleTextareaChange = ({ target }) => {
 		setTextArea(target.value);
@@ -17,10 +18,15 @@ export const FormAddTodo = ({
 
 	const handleFormSubmit = async (e) => {
 		e.preventDefault();
-		setIsLoadingAddTodo(true);
-		await handleAddTodo(textArea);
-		setIsLoadingAddTodo(false);
-		setIsModalOpen(false);
+		dispatch(changeIsLoadingAddTodo(true));
+		const addiedTodo = await requestAddTodo(textArea);
+		dispatch(changeIsLoadingAddTodo(false));
+		dispatch(modalClose);
+		if (addiedTodo) {
+			dispatch(addTodo(addiedTodo));
+		} else {
+			navigate('/action-failed-page', { replace: true });
+		}
 	};
 
 	return (

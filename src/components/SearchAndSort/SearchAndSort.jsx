@@ -1,17 +1,23 @@
 import './SearchAndSort.css';
 import { useEffect, useState } from 'react';
 import sortPng from '../../assets/sort.png';
-import { useTodos, useDebounce } from '../../hooks';
+import { useDebounce } from '../../hooks';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSearch, toggleSort } from '../../redux/actions';
 
 export const SearchAndSort = () => {
 	const [searchInput, setSearchInput] = useState('');
-	const { setSearch, sort, setSort } = useTodos();
+	const search = useSelector((store) => store.searchSort.search);
+	const sort = useSelector((store) => store.searchSort.sort);
+	const dispatch = useDispatch();
 
 	const debunced = useDebounce(searchInput, 700);
 
 	useEffect(() => {
-		setSearch(debunced);
-	}, [debunced]);
+		if (search !== '' && searchInput !== '') {
+			dispatch(setSearch(debunced));
+		}
+	}, [debunced, dispatch]);
 
 	const handleOnChange = ({ target }) => {
 		setSearchInput(target.value);
@@ -28,7 +34,7 @@ export const SearchAndSort = () => {
 			/>
 			<div
 				className={`btn-img-sort ${sort ? 'sort-active' : ''}`}
-				onClick={() => setSort((prev) => !prev)}
+				onClick={() => dispatch(toggleSort)}
 			>
 				<img className="img-sort" src={sortPng} alt="sort a-b" />
 			</div>

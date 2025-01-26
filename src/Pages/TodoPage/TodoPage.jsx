@@ -1,35 +1,55 @@
 import './TodoPage.css';
 import deletePng from '../../assets/delete.png';
 import back from '../../assets/back.png';
-import { useTodos } from '../../hooks';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FormEditTodo } from '../../components';
 import { TodoLayout } from '../../Layouts';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+	changeIsLoading,
+	setTodo,
+	changeIsLoadingEditTodo,
+	deleteTodo,
+} from '../../redux/actions';
+import { requestGetTodo, requestDeleteTodo } from '../../hooks';
 
 export const TodoPage = () => {
-	const [todo, setTodo] = useState(null);
-	const [isLoadingButtons, setIsLoadingButtons] = useState(false);
-
-	const { isLoading, handleGetTodoById, handleDeleteTodo, handleEditTodo } = useTodos();
+	const isLoading = useSelector((store) => store.loaders.isLoading);
+	const isLoadingEditTodo = useSelector((store) => store.loaders.isLoadingEditTodo);
 
 	const { id } = useParams();
 
 	const navigate = useNavigate();
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		const getTodo = async () => {
-			setTodo(await handleGetTodoById(id));
+			dispatch(changeIsLoading(true));
+			const todo = await requestGetTodo(id);
+			if (todo) {
+				dispatch(setTodo(todo));
+				dispatch(changeIsLoading(false));
+			} else {
+				dispatch(changeIsLoading(false));
+				navigate('/loading-error-page', { replace: true });
+			}
 		};
 		getTodo();
 	}, []);
 
 	const handleClickDelete = async () => {
-		if (!isLoadingButtons) {
-			setIsLoadingButtons(true);
-			await handleDeleteTodo(id);
-			setIsLoadingButtons(false);
-			navigate('/', { replace: true });
+		if (!isLoadingEditTodo) {
+			dispatch(changeIsLoadingEditTodo(true));
+			const statusDelete = await requestDeleteTodo(id);
+			if (statusDelete) {
+				dispatch(deleteTodo(id));
+				dispatch(changeIsLoadingEditTodo(false));
+				navigate('/', { replace: true });
+			} else {
+				dispatch(changeIsLoadingEditTodo(false));
+				navigate('/action-failed-page', { replace: true });
+			}
 		}
 	};
 
@@ -45,7 +65,7 @@ export const TodoPage = () => {
 						<Link className="img-container-btn" to="/">
 							<img className="img-btn" src={back} alt="delete" />
 						</Link>
-						{isLoadingButtons ? (
+						{isLoadingEditTodo ? (
 							<span className="loader loader-delete-button" />
 						) : (
 							<div className="img-container-btn">
@@ -58,12 +78,7 @@ export const TodoPage = () => {
 							</div>
 						)}
 					</header>
-					<FormEditTodo
-						todo={todo}
-						isLoadingButtons={isLoadingButtons}
-						setIsLoadingButtons={setIsLoadingButtons}
-						handleEditTodo={handleEditTodo}
-					/>
+					<FormEditTodo />
 				</div>
 			)}
 		</TodoLayout>
