@@ -1,18 +1,15 @@
 import './FormEditTodo.css';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { changeIsLoadingEditTodo, editTodo } from '../../redux/actions';
+import { useDispatch } from 'react-redux';
+import { editTodo } from '../../redux/actions';
 import { requestEditTodo } from '../../hooks';
 
-export const FormEditTodo = () => {
+export const FormEditTodo = ({ todo, isLoadingEditTodo, setIsLoadingEditTodo }) => {
 	const [textArea, setTextArea] = useState('');
 
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-
-	const todo = useSelector((store) => store.todo);
-	const isLoadingEditTodo = useSelector((store) => store.loaders.isLoadingEditTodo);
 
 	useEffect(() => setTextArea(todo ? todo.title : ''), [todo]); // Нужен что бы обновлять textArea так как его значение тянется из запроса на уровень выше
 
@@ -25,14 +22,14 @@ export const FormEditTodo = () => {
 	const handleSabmit = async (e) => {
 		e.preventDefault();
 		const editedTodo = { ...todo, title: textArea };
-		dispatch(changeIsLoadingEditTodo(true));
+		setIsLoadingEditTodo(true);
 		const statusEdit = await requestEditTodo(editedTodo);
 		if (statusEdit) {
 			dispatch(editTodo(editedTodo));
-			dispatch(changeIsLoadingEditTodo(false));
+			setIsLoadingEditTodo(false);
 			navigate('/', { replace: true });
 		} else {
-			dispatch(changeIsLoadingEditTodo(false));
+			setIsLoadingEditTodo(false);
 			navigate('/action-failed-page', { replace: true });
 		}
 	};

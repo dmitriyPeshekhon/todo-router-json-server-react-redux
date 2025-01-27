@@ -1,13 +1,12 @@
 import './FormAddTodo.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { changeIsLoadingAddTodo, modalClose, addTodo } from '../../redux/actions';
+import { useDispatch } from 'react-redux';
+import { modalClose, addTodo } from '../../redux/actions';
 import { requestAddTodo } from '../../hooks';
 
-export const FormAddTodo = () => {
+export const FormAddTodo = ({ isLoadingAddTodo, setIsLoadingAddTodo }) => {
 	const [textArea, setTextArea] = useState('');
-	const isLoadingAddTodo = useSelector((store) => store.loaders.isLoadingAddTodo);
 
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
@@ -18,9 +17,9 @@ export const FormAddTodo = () => {
 
 	const handleFormSubmit = async (e) => {
 		e.preventDefault();
-		dispatch(changeIsLoadingAddTodo(true));
+		setIsLoadingAddTodo(true);
 		const addiedTodo = await requestAddTodo(textArea);
-		dispatch(changeIsLoadingAddTodo(false));
+		setIsLoadingAddTodo(false);
 		dispatch(modalClose);
 		if (addiedTodo) {
 			dispatch(addTodo(addiedTodo));

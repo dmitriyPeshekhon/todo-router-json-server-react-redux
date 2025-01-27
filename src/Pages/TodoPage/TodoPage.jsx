@@ -2,21 +2,17 @@ import './TodoPage.css';
 import deletePng from '../../assets/delete.png';
 import back from '../../assets/back.png';
 import { Link, useParams, useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FormEditTodo } from '../../components';
 import { TodoLayout } from '../../Layouts';
-import { useSelector, useDispatch } from 'react-redux';
-import {
-	changeIsLoading,
-	setTodo,
-	changeIsLoadingEditTodo,
-	deleteTodo,
-} from '../../redux/actions';
+import { useDispatch } from 'react-redux';
+import { deleteTodo } from '../../redux/actions';
 import { requestGetTodo, requestDeleteTodo } from '../../hooks';
 
 export const TodoPage = () => {
-	const isLoading = useSelector((store) => store.loaders.isLoading);
-	const isLoadingEditTodo = useSelector((store) => store.loaders.isLoadingEditTodo);
+	const [todo, setTodo] = useState({});
+	const [isLoading, setIsLoading] = useState(false);
+	const [isLoadingEditTodo, setIsLoadingEditTodo] = useState(false);
 
 	const { id } = useParams();
 
@@ -25,13 +21,13 @@ export const TodoPage = () => {
 
 	useEffect(() => {
 		const getTodo = async () => {
-			dispatch(changeIsLoading(true));
-			const todo = await requestGetTodo(id);
-			if (todo) {
-				dispatch(setTodo(todo));
-				dispatch(changeIsLoading(false));
+			setIsLoading(true);
+			const responseTodo = await requestGetTodo(id);
+			if (responseTodo) {
+				setTodo(responseTodo);
+				setIsLoading(false);
 			} else {
-				dispatch(changeIsLoading(false));
+				setIsLoading(false);
 				navigate('/loading-error-page', { replace: true });
 			}
 		};
@@ -40,14 +36,14 @@ export const TodoPage = () => {
 
 	const handleClickDelete = async () => {
 		if (!isLoadingEditTodo) {
-			dispatch(changeIsLoadingEditTodo(true));
+			setIsLoadingEditTodo(true);
 			const statusDelete = await requestDeleteTodo(id);
 			if (statusDelete) {
 				dispatch(deleteTodo(id));
-				dispatch(changeIsLoadingEditTodo(false));
+				setIsLoadingEditTodo(false);
 				navigate('/', { replace: true });
 			} else {
-				dispatch(changeIsLoadingEditTodo(false));
+				setIsLoadingEditTodo(false);
 				navigate('/action-failed-page', { replace: true });
 			}
 		}
@@ -78,7 +74,11 @@ export const TodoPage = () => {
 							</div>
 						)}
 					</header>
-					<FormEditTodo />
+					<FormEditTodo
+						todo={todo}
+						isLoadingEditTodo={isLoadingEditTodo}
+						setIsLoadingEditTodo={setIsLoadingEditTodo}
+					/>
 				</div>
 			)}
 		</TodoLayout>
